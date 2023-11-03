@@ -1,13 +1,15 @@
 console.log("Starting backend!");
-require('dotenv');
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/cors');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
+
+const db = require('./config/database');
+
 const path = require('path');
 const app = express();
-const PORT = 2500;
+const PORT = process.env.PORT;
 
 //middleware - need to research what these do...
 app.use(cors(corsOptions));
@@ -18,13 +20,14 @@ app.use(cookieParser());
 
 app.get('/', (req, res) => {
   res.send("Got base route");
-})
+});
 
-app.get('/users', (req, res) => {
-  res.send("Users!!");
-})
+app.use('/mongo/api', require('./routes/mongoEndpoints'));
 
+(async () => {
+  await db.init();
 
-app.listen(PORT, () => {
-  console.log("Listening to port", PORT);
-})
+  app.listen(PORT, (err) => {
+    console.log(`Server listening to ${PORT}`);
+  });
+})();

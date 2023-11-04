@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
   res.send("Got base route");
 });
 
+//routes
 app.use('/mongo/api', require('./routes/mongoEndpoints'));
 
 (async () => {

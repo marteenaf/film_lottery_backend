@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 
 //routes
 app.use('/mongo/api', require('./routes/mongoEndpoints'));
+app.use('/auth', require('./routes/authentication'));
 
 (async () => {
   await db.init();

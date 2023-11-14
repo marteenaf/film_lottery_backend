@@ -11,12 +11,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT;
 
+app.use(require('./middleware/credentials'));
 //middleware - need to research what these do...
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
+
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
   res.send("Got base route");
@@ -24,6 +26,7 @@ app.get('/', (req, res) => {
 
 //routes
 app.use('/mongo/api', require('./routes/mongoEndpoints'));
+app.use('/auth', require('./routes/authenticationEndpoints'));
 
 (async () => {
   await db.init();

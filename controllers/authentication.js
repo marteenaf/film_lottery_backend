@@ -50,16 +50,16 @@ async function login(req, res) {
         console.log("Correct password, user autheticated");
 
         //use id or uuid to create the token to make sure it is unique
-        const token = jwt.sign({ email: user.email }, process.env.ACEES_TOKEN, {
+        const token = jwt.sign({ id: user.uuid }, process.env.ACEES_TOKEN, {
           expiresIn: '1800s'
         })
 
-        const refresh_token = jwt.sign({ email: user.email }, process.env.REFRESH_TOKEN, {
+        const refresh_token = jwt.sign({ id: user.uuid }, process.env.REFRESH_TOKEN, {
           expiresIn: '1d'
         })
 
         //add the refresh token to the user document
-        await collection.updateOne({ email: user.email }, { $set: { "refresh_token": refresh_token } });
+        await collection.updateOne({ uuid: user.uuid }, { $set: { "refresh_token": refresh_token } });
 
         res.cookie('refresh_token', refresh_token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: "None", secure: true });
         //here is where we will create a jwt for the session. Send the token in headers to front-end
@@ -85,36 +85,6 @@ async function login(req, res) {
       error: true,
       message: "User was not found. Try with another email."
     })
-  }
-}
-
-//improve this
-function verify(req, res, next) {
-  const header = req.header("Authorization");
-  console.log("-------------");
-  console.log("header", header);
-  if (!header) {
-    return res.status(401).json({
-      error: true,
-      message: "User is not authorised!"
-    })
-  } else {
-
-    const token = header.startsWith("Bearer") ? header.split(" ")[1] : null;
-    try {
-      const verification = jwt.verify(token, process.env.ACEES_TOKEN);
-      console.log("-----------");
-      console.log("verification", verification);
-      console.log("-----------");
-      req.user = verification;
-      return next();
-    } catch (error) {
-      req.user = {};
-      return res.status(400).json({
-        error: true,
-        message: "Invalid token!",
-      })
-    }
   }
 }
 
@@ -159,9 +129,9 @@ async function refresh(req, res) {
     cookie,
     process.env.REFRESH_TOKEN,
     (err, decoded) => {
-      if (err || user.email !== decoded.email) return res.sendStatus(403);
+      if (err || user.uuid !== decoded.id) return res.sendStatus(403);
 
-      const token = jwt.sign({ email: user.email }, process.env.ACEES_TOKEN, {
+      const token = jwt.sign({ id: user.uuid }, process.env.ACEES_TOKEN, {
         expiresIn: '1800s'
       });
 
@@ -176,8 +146,22 @@ async function refresh(req, res) {
   )
 }
 
+async function getUser(req, res) {
+  //user verification here.
+  console.log("--------- GETTING USER ---------");
+  const database = await db.connection().db("auth");
+  const collection = await database.collection("users");
+  const { email } = await collection.findOne({ uuid: req.user.id });
+  const user = email;
+  res.json({
+    error: false,
+    message: "Request for user details successful!",
+    user: user
+  })
+}
+
 module.exports.login = login;
 module.exports.register = register;
-module.exports.verify = verify;
 module.exports.logout = logout;
 module.exports.refresh = refresh;
+module.exports.user = getUser;

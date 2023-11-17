@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../config/database');
 const router = express.Router();
-const { verify } = require('../controllers/authentication');
+const { verifyUser } = require('../middleware/verification');
 
 async function getCollection(req) {
   const database = await db.connection().db(req.params.database);
@@ -9,7 +9,7 @@ async function getCollection(req) {
   return collection;
 }
 
-router.get(`/:database/:collection/aggregate`, verify, async (req, res) => {
+router.get(`/:database/:collection/aggregate`, verifyUser, async (req, res) => {
   console.log("------------");
   console.log(req.params);
   console.log(JSON.parse(req.query.pipeline));
@@ -22,7 +22,7 @@ router.get(`/:database/:collection/aggregate`, verify, async (req, res) => {
   res.send(results).status(200);
 });
 
-router.get(`/:database/:collection`, verify, async (req, res) => {
+router.get(`/:database/:collection`, verifyUser, async (req, res) => {
   console.log("-----GET COLLECTION-------");
   console.log(req.params, req.user);
   console.log("------------");
@@ -34,7 +34,7 @@ router.get(`/:database/:collection`, verify, async (req, res) => {
 });
 
 //should we run checks here to error handle?
-router.post('/:database/:collection', verify, async (req, res) => {
+router.post('/:database/:collection', verifyUser, async (req, res) => {
   console.log("-----POST TO COLLECTION-------");
   console.log(req.statusCode);
   console.log("params", req.params);
@@ -58,7 +58,7 @@ router.post('/:database/:collection', verify, async (req, res) => {
   }
 })
 
-router.patch('/:database/:collection', verify, async (req, res) => {
+router.patch('/:database/:collection', verifyUser, async (req, res) => {
 
   console.log("-----PATCH TO COLLECTION-------");
   console.log(req.statusCode);

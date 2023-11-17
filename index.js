@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/cors');
 const cookieParser = require('cookie-parser');
+const { verify } = require('./middleware/verification')
 
 const db = require('./config/database');
 
@@ -12,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(require('./middleware/credentials'));
+app.use(verify);
 //middleware - need to research what these do...
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));

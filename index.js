@@ -2,19 +2,22 @@ console.log("Starting backend!");
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const corsOptions = require('./config/cors');
+const path = require('path');
 const cookieParser = require('cookie-parser');
-const { verify } = require('./middleware/verification')
 
+const corsOptions = require('./config/cors');
 const db = require('./config/database');
 
-const path = require('path');
+const { verify } = require('./middleware/verification')
+const errorHandler = require('./middleware/errorhandler');
+
+
 const app = express();
 const PORT = process.env.PORT;
 
+//middleware - need to research what these do...They run before each request I believe
 app.use(require('./middleware/credentials'));
 app.use(verify);
-//middleware - need to research what these do...
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -26,9 +29,11 @@ app.get('/', (req, res) => {
   res.send("Got base route");
 });
 
+app.use(errorHandler);
 //routes
 app.use('/mongo/api', require('./routes/mongoEndpoints'));
 app.use('/auth', require('./routes/authenticationEndpoints'));
+app.use('/moviedb', require('./routes/moviedbEndpoint'));
 
 (async () => {
   await db.init();

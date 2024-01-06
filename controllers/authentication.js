@@ -71,7 +71,7 @@ async function login(req, res) {
           user: user.email
         });
       } else {
-        console.log("Inccorect password, user NOT autheticated");
+        console.log("Incorect password, user NOT autheticated");
         res.status(400).json({
           error: true,
           message: "Incorrect password!"
@@ -98,7 +98,7 @@ async function logout(req, res) {
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");
   const user = await collection.findOne({ refresh_token: cookie });
-  console.log("My user", user);
+  //console.log("My user", user);
 
   if (!user) {
     res.clearCookie("refresh_token", { httpOnly: true, sameSite: "None", secure: true })
@@ -114,14 +114,14 @@ async function logout(req, res) {
 
 async function refresh(req, res) {
   console.log("-------------- REFRESH");
-  console.log(req.cookies);
+  //console.log(req.cookies);
   const cookie = req.cookies.refresh_token;
   if (!cookie) return res.sendStatus(401);
 
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");
   const user = await collection.findOne({ refresh_token: cookie });
-  console.log("My user", user);
+  //console.log("My user", user);
 
   if (!user) return res.sendStatus(403);
 

@@ -11,8 +11,8 @@ async function getCollection(req) {
 
 router.get(`/:database/:collection/aggregate`, verifyUser, async (req, res) => {
   console.log("------------");
-  console.log(req.params);
-  console.log(JSON.parse(req.query.pipeline));
+  //console.log(req.params);
+  //console.log(JSON.parse(req.query.pipeline));
   console.log("------------");
   let collection = await getCollection(req);
   const pipeline = JSON.parse(req.query.pipeline);
@@ -24,7 +24,7 @@ router.get(`/:database/:collection/aggregate`, verifyUser, async (req, res) => {
 
 router.get(`/:database/:collection`, verifyUser, async (req, res) => {
   console.log("-----GET COLLECTION-------");
-  console.log(req.params, req.user);
+  //console.log(req.params, req.user, req.body);
   console.log("------------");
   let collection = await getCollection(req)
   let results = await collection.find({})
@@ -36,9 +36,9 @@ router.get(`/:database/:collection`, verifyUser, async (req, res) => {
 //should we run checks here to error handle?
 router.post('/:database/:collection', verifyUser, async (req, res) => {
   console.log("-----POST TO COLLECTION-------");
-  console.log(req.statusCode);
-  console.log("params", req.params);
-  console.log("body", req.body);
+  //console.log(req.statusCode);
+  //console.log("params", req.params);
+  //console.log("body", req.body);
   console.log("------------");
 
   try {
@@ -46,9 +46,9 @@ router.post('/:database/:collection', verifyUser, async (req, res) => {
     let collection = await getCollection(req);
     let documents = req.body;
     let inserted = await collection.insertMany(documents);
-    console.log("IDs", inserted.insertedIds);
-    console.log("Count", inserted.insertedCount);
-    console.log("Acknowledgement", inserted.acknowledged);
+    //console.log("IDs", inserted.insertedIds);
+    //console.log("Count", inserted.insertedCount);
+    //console.log("Acknowledgement", inserted.acknowledged);
 
     res.send("Posted!").status(200);
   } catch (e) {
@@ -61,17 +61,17 @@ router.post('/:database/:collection', verifyUser, async (req, res) => {
 router.patch('/:database/:collection', verifyUser, async (req, res) => {
 
   console.log("-----PATCH TO COLLECTION-------");
-  console.log(req.statusCode);
-  console.log("params", req.params);
-  console.log("body", req.body);
+  //console.log(req.statusCode);
+  //console.log("params", req.params);
+  //console.log("body", req.body);
   let body = req.body;
-  console.log("uuid", body.uuid);
-  console.log("data", body.data);
+  //console.log("uuid", body.uuid);
+  //console.log("data", body.data);
   console.log("-------------------------------");
 
   let collection = await getCollection(req);
   let original = await collection.findOneAndUpdate({ "uuid": req.body.uuid }, { "$set": req.body.data });
-  console.log(original);
+  //console.log(original);
 
   res.send("Patching!");
 

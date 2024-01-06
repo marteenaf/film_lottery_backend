@@ -24,7 +24,7 @@ function verify(req, res, next) {
 
 function verifyUser(req, res, next) {
   console.log("-------VERIFY USER---------");
-  console.log("user?", req.user);
+  //console.log("user?", req.user);
   if (req.user?.id) {
     return next();
   } else {

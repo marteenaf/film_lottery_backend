@@ -13,7 +13,8 @@ async function encryptPassowrd(plain) {
 async function register(req, res, err) {
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");
-  const user = await collection.find({ email: req.body.email }).limit(1).toArray();
+  const email = req.body.email.toLowerCase();
+  const user = await collection.find({ email: email }).limit(1).toArray();
 
   if (user.length > 0 || user[0]) {
     res.status(400).json({
@@ -22,6 +23,7 @@ async function register(req, res, err) {
     });
   } else {
     const newUser = req.body;
+    newUser.email = email;
     //encrypt the password here
     const encryptedPassword = await encryptPassowrd(req.body.password);
     newUser.password = encryptedPassword;
@@ -116,7 +118,10 @@ async function refresh(req, res) {
   console.log("-------------- REFRESH");
   //console.log(req.cookies);
   const cookie = req.cookies.refresh_token;
-  if (!cookie) return res.sendStatus(401);
+  if (!cookie) return res.status(401).json({
+    error: true,
+    message: "Could not find refresh token in cookies"
+  });
 
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");

@@ -134,7 +134,6 @@ async function logout(req, res) {
 
 async function refresh(req, res) {
   console.log("-------------- REFRESH");
-  console.log(req.cookies);
   const myCookie = req.cookies.refresh_token;
   if (!myCookie) return res.status(401).json({
     error: true,
@@ -142,7 +141,6 @@ async function refresh(req, res) {
   });
 
   const parsedCookie = cookie.parse(myCookie);
-  console.log("Cookie found?", parsedCookie);
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");
   const user = await collection.findOne({ refresh_token: myCookie });

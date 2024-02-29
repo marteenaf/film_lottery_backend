@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../config/database');
 const jwt = require('jsonwebtoken');
+const cookie = require('cookie');
 
 async function encryptPassowrd(plain) {
   try {
@@ -63,13 +64,24 @@ async function login(req, res) {
         //add the refresh token to the user document
         await collection.updateOne({ uuid: user.uuid }, { $set: { "refresh_token": refresh_token } });
 
-        res.cookie('refresh_token', refresh_token, {
+        //res.cookie('refresh_token', refresh_token, {
+        //  httpOnly: true,
+        //  domain: undefined,
+        //  maxAge: 24 * 60 * 60 * 1000,
+        //  sameSite: "none",
+        //  secure: true,
+        //  partitioned: true
+        //});
+
+        res.setHeader('Set-Cookie', cookie.serialize('refresh_token', refresh_token, {
           httpOnly: true,
           domain: undefined,
           maxAge: 24 * 60 * 60 * 1000,
           sameSite: "none",
-          secure: true
-        });
+          secure: true,
+          partitioned: true
+        }));
+
         //here is where we will create a jwt for the session. Send the token in headers to front-end
         res.status(200).json({
           error: false,
@@ -122,25 +134,33 @@ async function logout(req, res) {
 
 async function refresh(req, res) {
   console.log("-------------- REFRESH");
-  //console.log(req.cookies);
-  const cookie = req.cookies.refresh_token;
-  if (!cookie) return res.status(401).json({
+  console.log(req.cookies);
+  const myCookie = req.cookies.refresh_token;
+  if (!myCookie) return res.status(401).json({
     error: true,
     message: "Could not find refresh token in cookies"
   });
 
+  const parsedCookie = cookie.parse(myCookie);
+  console.log("Cookie found?", parsedCookie);
   const database = await db.connection().db("auth");
   const collection = await database.collection("users");
-  const user = await collection.findOne({ refresh_token: cookie });
+  const user = await collection.findOne({ refresh_token: myCookie });
   //console.log("My user", user);
 
-  if (!user) return res.sendStatus(403);
+  if (!user) return res.status(403).json({
+    error: true,
+    message: "Could not find associated user"
+  });
 
   jwt.verify(
-    cookie,
+    myCookie,
     process.env.REFRESH_TOKEN,
     (err, decoded) => {
-      if (err || user.uuid !== decoded.id) return res.sendStatus(403);
+      if (err || user.uuid !== decoded.id) return res.status(403).json({
+        error: true,
+        message: "Could not verify token"
+      });
 
       const token = jwt.sign({ id: user.uuid }, process.env.ACEES_TOKEN, {
         expiresIn: '1800s'

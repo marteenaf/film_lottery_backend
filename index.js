@@ -15,13 +15,14 @@ const errorHandler = require('./middleware/errorhandler');
 const app = express();
 const PORT = process.env.PORT;
 
+app.use(express.json());
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 //middleware - need to research what these do...They run before each request I believe
 app.use(require('./middleware/credentials'));
 app.use(verify);
-app.use(cors(corsOptions));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cookieParser());
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 

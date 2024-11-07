@@ -43,8 +43,8 @@ require('crypto).randomBytes(64).toString('hex')
 
 In the root of the repository add an .env file with the following keys:
 ```{.env file}
-PORT= #port number to run this project
-FRONTEND_URL='https://localhost:<PORT for frontend>'
+PORT= '' #port number to run this project
+FRONTEND_URL='http://localhost:<PORT for frontend>'
 MONGO_URI='' #the end of your datbase connection string (everything after '@' symbol)
 MONGO_USERNAME='' #your mongo username
 MONGO_PASSWORD='' #your mongo password

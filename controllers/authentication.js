@@ -53,7 +53,7 @@ async function login(req, res) {
         console.log("Correct password, user autheticated");
 
         //use id or uuid to create the token to make sure it is unique
-        const token = jwt.sign({ id: user.uuid }, process.env.ACEES_TOKEN, {
+        const token = jwt.sign({ id: user.uuid }, process.env.ACCESS_TOKEN, {
           expiresIn: '1800s'
         })
 
@@ -160,7 +160,7 @@ async function refresh(req, res) {
         message: "Could not verify token"
       });
 
-      const token = jwt.sign({ id: user.uuid }, process.env.ACEES_TOKEN, {
+      const token = jwt.sign({ id: user.uuid }, process.env.ACCESS_TOKEN, {
         expiresIn: '1800s'
       });
 

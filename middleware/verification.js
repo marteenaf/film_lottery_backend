@@ -11,7 +11,7 @@ function verify(req, res, next) {
 
     const token = header.startsWith("Bearer") ? header.split(" ")[1] : null;
     try {
-      const verification = jwt.verify(token, process.env.ACEES_TOKEN);
+      const verification = jwt.verify(token, process.env.ACCESS_TOKEN);
       req.user = verification;
       return next();
     } catch (error) {
